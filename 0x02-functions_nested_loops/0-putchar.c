@@ -5,7 +5,6 @@
  */
 int main(void)
 {
-	printf("_putchar\n");
 	__putchar('_');
 	__putchar('p');
 	__putchar('u');

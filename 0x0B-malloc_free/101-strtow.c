@@ -1,64 +1,92 @@
-#include "main.h"
-#include <stdio.h>
+#include "holberton.h"
 #include <stdlib.h>
 
 /**
- * strtow - concatenates all the arguments of your program
- *@str: string
- *@av: arguments
- * Return: a pointer to a new string
+ * strtow - converts a sting to an array of the words in the string
+ * @str: Pointer to the first character in the original string
+ *
+ * Return: A pointer to the first pointer in an array of pointers which each
+ *			point to the first character in the string of a word
  */
 char **strtow(char *str)
 {
-	int i, w, j, k, count, m, wordf;
-	char **p;
-	char *x;
+	char **dest;
+	int wordcount, onword = 0, wordsize;
+	int i, j, w;
 
-	w = 0;
-	j = 0;
-	i = 0;
-	count = 0;
-	if (*str == '\0' || str == NULL)
+	if (str == NULL || str[0] == '\0')
 		return (NULL);
-	for (i = 0; str[i] != '\0'; i++)
-	{
-		if (str[i] == ' ' && (str[i + 1] != ' ' || str[i + 1] == '\0'))
-			w++;
-	}
-	p = (char **)malloc((w + 1) * sizeof(char *));
-	if (p == NULL)
+
+	wordcount = get_wordcount(str);
+	if (!wordcount)
 		return (NULL);
-	for (wordf = 0; str[wordf] && j <= w; wordf++)
+
+	dest = malloc(sizeof(char *) * (wordcount + 1));
+	if (dest == NULL)
+		return (NULL);
+	dest[wordcount] = NULL;
+
+	for (i = 0; str[i]; i++)
 	{
-		count = 0;
-		if (str[wordf] != ' ')
+		if (str[i] == ' ')
+			continue;
+		for (j = i; str[j] && str[j] != ' '; j++)
+			;
+		wordsize = j - i;
+		dest[onword] = malloc(sizeof(char) * (wordsize + 1));
+		if (dest[onword] == NULL)
 		{
-			for (i = wordf ; str[i] != '\0'; i++)
-			{
-				if (str[i] == ' ')
-					break;
-				count++;
-			}
-			*(p + j) = (char *)malloc((count + 1) * sizeof(char));
-			if (*(p + j) == NULL)
-			{
-				for (k = 0; k <= j; k++)
-				{
-					x = p[k];
-					free(x);
-				}
-				free(p);
-				return (NULL);
-			}
-			for (m = 0; wordf < i; wordf++)
-			{
-				p[j][m] = str[wordf];
-				m++;
-			}
-			p[j][m] = '\0';
-			j++;
+			freememc(dest);
+			return (NULL);
 		}
+		for (w = 0; str[i] && str[i] != ' '; i++, w++)
+			dest[onword][w] = str[i];
+		dest[onword][w] = '\0';
+
+		if (!str[i])
+			i--;
+		onword++;
 	}
-	p[j] = NULL;
-	return (p);
+	return (dest);
+}
+
+
+/**
+ * freememc - frees the memory of an array of pointers pointing to arrays
+ * @d: pointer to first pointer in array
+ */
+void freememc(char **d)
+{
+	int i;
+
+	for (i = 0; d[i] != NULL; i++)
+	{
+		free(d[i]);
+	}
+	free(d);
+}
+
+/**
+ * get_wordcount - gets the number of words in a string with space separators
+ * @c: pointer to the first character in the string
+ *
+ * Return: Number of words in the string
+ */
+int get_wordcount(char *c)
+{
+	int i, count = 0;
+
+	for (i = 0; c[i]; i++)
+	{
+		if (c[i] != ' ')
+		{
+			count++;
+			for (; c[i] && c[i] != ' '; i++)
+				;
+		}
+		if (!c[i])
+			c--;
+	}
+
+	return (count);
 }
